@@ -5,13 +5,9 @@ import "core:fmt"
 import "core:strings"
 
 Server :: struct {
-    config: Server_config,
+    config : Server_config,
 }
 
-Server_config :: struct {
-    port: int,
-    url: net.Address,
-}
 
 init_server :: proc(s : ^Server, config : Server_config = defualt_server_config) {
 
@@ -24,7 +20,7 @@ start_server :: proc(s : ^Server) {
     fmt.printf("Starting server.........")
 
     listen_socket, listen_err := net.listen_tcp(net.Endpoint{
-        address = s.config.url,
+        address = net.parse_address(s.config.url),
         port = s.config.port,
     })
 
