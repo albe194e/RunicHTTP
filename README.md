@@ -4,9 +4,7 @@
 
 Welcome to **RunicHTTP**!  
 
-RunicHTTP is a lightweight and customizable HTTP server built using the Odin programming language. This project was originally developed to power the website for the [HADL project](https://www.google.dk/) and serves as a robust foundation for creating web servers in Odin.  
-
-Whether you're interested in learning about server development or need a flexible starting point for your own project, RunicHTTP is here to help.  
+RunicHTTP is a lightweight and customizable HTTP server built using the Odin programming language. This project was originally developed to power the website for the [HADL project](https://www.google.dk/) and as a way for me to develop better Odin skills.
 
 ---
 
