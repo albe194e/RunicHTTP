@@ -1,3 +1,3 @@
-package http;
+package rhttp;
 
 handle_client :: proc()

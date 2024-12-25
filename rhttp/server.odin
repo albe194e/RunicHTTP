@@ -1,4 +1,4 @@
-package http;
+package rhttp;
 
 import "core:net"
 import "core:fmt"
