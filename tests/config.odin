@@ -3,7 +3,7 @@ package tests;
 import "core:log"
 import "core:testing"
 
-import rhttp "../src"
+import "../rhttp"
 
 
 @(test)

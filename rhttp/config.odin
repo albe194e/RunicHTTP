@@ -14,7 +14,8 @@ Server_config :: struct {
 Test_config :: struct {
     integer: int,
     text: string,
-    point: f32
+    point: f32,
+    enabled: bool
 }
 
 Config_type_e :: enum {
@@ -88,8 +89,6 @@ load_config_from_file :: proc(path : string, type : Config_type_e) -> (config : 
 		if err != nil {
             fmt.printfln("Err: %#v", err)
             panic("Failed to load config")
-		} else {
-            fmt.printf("\nSuccesfully loaded config file: %#v\n", config)
 		}
 
 	} else {
