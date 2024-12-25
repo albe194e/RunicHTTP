@@ -30,7 +30,6 @@ start_server :: proc(s : ^Server) {
 
     fmt.printf("Server is running on port %d\n", s.config.port)
 
-    
     for {
         // Accept a client connection
         client_socket, _, accept_err := net.accept_tcp(listen_socket)
@@ -41,6 +40,7 @@ start_server :: proc(s : ^Server) {
         fmt.println("Client connected!")
 
         for {
+
             data_in_bytes : [8]byte;
             _, err := net.recv_tcp(client_socket, data_in_bytes[:])
             if err != nil {
@@ -64,6 +64,11 @@ start_server :: proc(s : ^Server) {
 
         net.close(client_socket)
     }
+}
+
+destroy_server :: proc(s : ^Server) {
+
+
 }
 
 compare_arrays :: proc(a: [8]byte, b: [8]byte) -> bool {
