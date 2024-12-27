@@ -1,3 +1,4 @@
 main.odin
 *.json
 *.exe
+*.pdb
