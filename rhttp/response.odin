@@ -2,7 +2,5 @@ package rhttp;
 
 Response :: struct {
 
-
+    body : string
 }
-
-parse_response :: proc()

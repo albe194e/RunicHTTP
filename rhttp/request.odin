@@ -7,8 +7,8 @@ Request_method :: enum {
 Request :: struct {
 
     method : Request_method,
-
-    path : string
+    path : string,
+    optional_data : string
 
 }
 

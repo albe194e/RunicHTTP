@@ -1,6 +1,6 @@
 package rhttp;
 
-action :: #type proc() -> []byte;
+action :: #type proc() -> Response;
 
 Route :: struct {
 
