@@ -15,17 +15,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Odin (replace with the URL of the latest release)
+      # Install jq (for fetching dynamic URLs)
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      # Fetch and install Odin Compiler
       - name: Install Odin Compiler
         run: |
           mkdir -p $HOME/odin
-          curl -L -o odin.zip https://github.com/odin-lang/Odin/releases/download/dev-2025-01/odin-ubuntu-amd64-dev-2025-01.zip
+          LATEST_URL=$(curl -s https://api.github.com/repos/odin-lang/Odin/releases/latest | jq -r '.assets[] | select(.name | endswith("ubuntu-amd64-dev.zip")) | .browser_download_url')
+          echo "Downloading Odin from $LATEST_URL"
+          curl -L -o odin.zip $LATEST_URL
           unzip odin.zip -d $HOME/odin
-          export PATH=$HOME/odin:$PATH
+          echo "$HOME/odin" >> $GITHUB_PATH
 
       # Verify Odin installation
       - name: Verify Odin Installation
         run: odin version
+
+      # Debug Odin directory structure (optional)
+      - name: Debug Odin Installation
+        run: ls -R $HOME/odin
 
       # Run Odin tests
       - name: Run Tests
