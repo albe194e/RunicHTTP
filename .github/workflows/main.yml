@@ -1,0 +1,33 @@
+name: Odin Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Odin (replace with the URL of the latest release)
+      - name: Install Odin Compiler
+        run: |
+          mkdir -p $HOME/odin
+          curl -L -o odin.zip https://github.com/odin-lang/Odin/releases/latest/download/odin-linux.zip
+          unzip odin.zip -d $HOME/odin
+          export PATH=$HOME/odin:$PATH
+
+      # Verify Odin installation
+      - name: Verify Odin Installation
+        run: odin version
+
+      # Run Odin tests
+      - name: Run Tests
+        run: |
+          odin test tests/ -all-packages
