@@ -19,7 +19,7 @@ jobs:
       - name: Install Odin Compiler
         run: |
           mkdir -p $HOME/odin
-          curl -L -o odin.zip https://github.com/odin-lang/Odin/releases/latest/download/odin-linux.zip
+          curl -L -o https://github.com/odin-lang/Odin/releases/download/dev-2025-01/odin-ubuntu-amd64-dev-2025-01.zip
           unzip odin.zip -d $HOME/odin
           export PATH=$HOME/odin:$PATH
 
