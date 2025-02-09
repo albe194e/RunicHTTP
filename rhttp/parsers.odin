@@ -3,9 +3,87 @@ package rhttp;
 import "core:fmt"
 import "core:strings"
 import "core:bytes"
+import "core:slice"
 
 @(private)
-parse_request :: proc(data : []byte) -> (r : Request) {
+parse_request :: proc(data : string) -> (r : Request) {
+
+    init_request(&r);
+
+    data, was_alloc := strings.replace_all(data, "\r\n", "\n");
+    defer {if was_alloc {delete(data)}};
+    
+    Token :: struct {
+        value : string
+    };
+    
+    tokens := make([dynamic]Token)
+    defer delete(tokens)
+
+    current_index : int;
+    
+    for r, i in data {
+        switch r {
+            case ' ', '\n':
+                if current_index != i {
+                    append(&tokens, Token{data[current_index:i]})
+                }
+                current_index = i + 1;
+            case ':':
+                append(&tokens, Token{data[current_index:i]})
+                append(&tokens, Token{data[i:i+1]})
+                current_index = i + 1;
+        }
+    }
+    fmt.printf("Tokens: %#v", tokens)
+
+    state : enum {
+        method,
+        path,
+        version,
+        headers,
+        body
+    }
+
+    for i := 0; i < len(tokens); i += 1 {
+
+        switch state {
+            case .method:
+                m := string_to_request_method(tokens[i].value)
+                if m != .NONE {
+                    r.rl.method = m;
+                    state = .path
+                }
+                else {
+                    panic("Invalid method");
+                }
+            
+            case .path:
+                r.rl.path = tokens[i].value;
+                state = .version;
+            
+            case .version:
+                r.rl.version = tokens[i].value;
+                state = .headers;
+    
+            case .headers:
+
+                if tokens[i + 1].value != ":" {
+                    state = .body
+                    continue;
+                }
+                r.headers.kv[tokens[i].value] = tokens[i + 2].value;
+                i += 2;
+
+            case .body:
+                return
+
+        }
+    }
+
+
+    /*
+
 
     //Get headers
     header_byte_seperator := transmute([]byte)HEADER_SEPERATOR_S;
@@ -22,14 +100,15 @@ parse_request :: proc(data : []byte) -> (r : Request) {
 
     fmt.printfln("Showing: %#v", strings.clone_from_bytes(data_split[0][:]))
     return r;
+    */
+
+    return r;
 }
 
 @(private)
-parse_response :: proc(r : Response) -> (bytes : []byte) {
+parse_response :: proc(r : string) -> (b : []byte) {
 
-    //Here the response should be formmated into appropiete string and converted to bytes
-    return transmute([]byte)r.body;
-
+    return transmute([]byte)r
 }
 
 
@@ -41,17 +120,6 @@ string_to_request_method :: proc(s : string) -> Request_method {
         case "GET":
             return .GET
         case :
-            return nil
+            return .NONE
     }
 }
-
-
-//Strings
-@(private="file")
-HEADER_SEPERATOR_S : string : "\r\n\r\n";
-
-//Chars in bytes
-@(private="file")
-BACKSLASH : byte : 47;
-@(private="file")
-SPACE : byte : 32;
