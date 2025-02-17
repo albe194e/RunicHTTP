@@ -5,6 +5,8 @@ import "core:fmt"
 import "core:strings"
 
 Status_code :: enum u16 {
+
+	NONE 							= 0,
 	OK                              = 200,
 
 	Continue                        = 100,
@@ -82,6 +84,7 @@ convert_status_code_to_str :: proc(sc : Status_code) -> string {
 		fmt.panicf("Failed to parse status_code: %v", sc)
 	}
 
-	status, ok_replace := strings.replace_all(enum_str, "_", " ")
+	status, _ := strings.replace_all(enum_str, "_", " ")
+
 	return strings.concatenate({fmt.aprint(cast(u16)sc), " ", status})
 }

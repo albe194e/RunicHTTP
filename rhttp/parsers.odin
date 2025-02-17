@@ -6,12 +6,20 @@ import "core:bytes"
 import "core:slice"
 
 @(private)
-parse_request :: proc(data : string) -> (r : Request) {
+parse_request :: proc(data : string) -> (r : Request, err : RhttpError) {
 
-    init_request(&r);
-
+    //fmt.printfln("Req: %#v", data)
     data, was_alloc := strings.replace_all(data, "\r\n", "\n");
     defer {if was_alloc {delete(data)}};
+
+    //Seperate body from request
+    split_req := strings.split_after(data, "\n\n")
+    
+    if (len(split_req) > 2) {
+        err.message =  fmt.tprintf("Something is wrong with the request: %#v", split_req);
+        err.status = .Internal_Server_Error
+        return r, err,
+    }
     
     Token :: struct {
         value : string
@@ -35,7 +43,7 @@ parse_request :: proc(data : string) -> (r : Request) {
                 current_index = i + 1;
         }
     }
-    fmt.printf("Tokens: %#v", tokens)
+    //fmt.printf("Tokens: %#v", tokens)
 
     state : enum {
         method,
@@ -55,62 +63,35 @@ parse_request :: proc(data : string) -> (r : Request) {
                     state = .path
                 }
                 else {
-                    panic("Invalid method");
+                    err.message = fmt.tprintfln("Requested method is not supported. Current supported methods are: %v", SUPPORTED_METHODS)
                 }
-            
-            case .path:
-                r.rl.path = tokens[i].value;
-                state = .version;
             
             case .version:
                 r.rl.version = tokens[i].value;
                 state = .headers;
+            case .path:
+                r.rl.path = strings.clone(tokens[i].value);
+                state = .version;
+            
     
             case .headers:
-
+                
+                //TODO: Extract headers correctly
                 if tokens[i + 1].value != ":" {
                     state = .body
                     continue;
                 }
+
                 r.headers.kv[tokens[i].value] = tokens[i + 2].value;
                 i += 2;
 
             case .body:
-                return
-
+                r.body = strings.clone(split_req[1])                
         }
     }
 
-
-    /*
-
-
-    //Get headers
-    header_byte_seperator := transmute([]byte)HEADER_SEPERATOR_S;
-    data_split := bytes.split_after(data, header_byte_seperator);
-
-    headers := data_split[0][:]
-    //Get necessary data from headers
-    method_path := bytes.split(headers, {BACKSLASH});
-    method := method_path[0][:]
-    path := bytes.split(method_path[1][:], {SPACE})[0][:];
-    
-    r.method = string_to_request_method(strings.clone_from_bytes(method));
-    r.path = fmt.aprintf("/%v",strings.clone_from_bytes(path));
-
-    fmt.printfln("Showing: %#v", strings.clone_from_bytes(data_split[0][:]))
-    return r;
-    */
-
-    return r;
+    return r, err;
 }
-
-@(private)
-parse_response :: proc(r : string) -> (b : []byte) {
-
-    return transmute([]byte)r
-}
-
 
 //Helpers 
 @(private="file")

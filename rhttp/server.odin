@@ -60,20 +60,36 @@ start_server :: proc(s : ^Server) {
                     fmt.panicf("error while receiving data: %s", err);
                 }
 
-                append(&request_buffer, ..buff[:]);
+                for b in buff {
+                    append(&request_buffer, b)
+                }
                 //TODO: Find out when to break the loop
                 break recv_loop;
             }
-            request := parse_request(string(request_buffer[:]));
+
+            request_handle_error : RhttpError
+            response_data : []byte
+            
+            request, parse_err := parse_request(string(request_buffer[:]));
             defer destroy_request(&request)
+            if parse_err.status != .NONE {
+                request_handle_error = parse_err
+            }
 
-            fmt.printfln("Request: %#v", request)
-            //Handle the request
-            response, err      := handle_request(s.router, request);
+            response : Response;
             defer destroy_response(&response);
+            handle_err : RhttpError;
 
-            response_str := build_response(response);
-            response_data := parse_response(response_str);
+            //Handle the request
+            if request_handle_error.status == .NONE {
+                response, handle_err = handle_request(s.router, request); 
+                
+                if handle_err.status != .NONE {
+                    request_handle_error = handle_err
+                }
+            }
+            
+            response_data = parse_response(&response, request_handle_error);
 
             //send data back to client
             sent, send_err := net.send_tcp(client_socket, response_data);
