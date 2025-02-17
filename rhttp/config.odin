@@ -61,7 +61,7 @@ load_config_from_file :: proc(path : string, type : Config_type_e) -> (config : 
             }
             if !field_exists {
                 //TODO: remove panic
-                fmt.panicf("Json field: %#v does does not exist in config type: %#v\n", json_field, type)
+                fmt.panicf("Json field: %#v does not exist in config type: %#v\n", json_field, type)
             }
         }
         

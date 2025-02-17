@@ -4,13 +4,21 @@ import "core:net"
 import "core:fmt"
 import "core:strings"
 import "core:bytes"
+import "base:runtime"
 
 @(private="file")
 SERVER_TEMP_BUFFER :: 4096;
 
 Server :: struct {
+
+    //User data
     config : Server_config,
-    router : Router
+    
+    //Package private
+    router : Router,
+    socket : net.TCP_Socket
+    
+
 }
 
 init_server :: proc(s : ^Server, config : Server_config = defualt_server_config) {
@@ -100,6 +108,12 @@ start_server :: proc(s : ^Server) {
         
         net.close(client_socket);
     }
+}
+
+//This should simply be called when encountering an error which should result in shutdown
+@(private)
+shutdown_server_gracefully :: proc(s : ^Server) {
+
 }
 
 destroy_server :: proc(s : ^Server) {
