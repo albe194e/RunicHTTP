@@ -27,7 +27,7 @@ server_test :: proc(t: ^testing.T) {
 my_get_action :: proc() -> (r : rhttp.Response, err : rhttp.RhttpError) {
 
     body := "HTTP/1.1 200 OK\r\nServer: RunicHTTP Server\r\nContent-Type: text/html\r\n\r\n<html><body><h1>Test!!!</h1><body></html>"
-    r.body = body
+    r.body.content = body
 
     return r, err;
 }
